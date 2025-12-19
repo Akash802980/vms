@@ -1,5 +1,6 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback,useEffect } from 'react';
 import Webcam from 'react-webcam';
+
 import { 
   Camera, Shield, Users, BarChart3, LogOut, 
   UserPlus, Home, QrCode, 
@@ -10,7 +11,7 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 // --- ⚠️ IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT URL HERE ---
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxeC_e7_fWtAok1SNAl1n7Pobd0idD3saeuklCTyPrD8XBYl3Hfui5o1VeKU-KOaMfl/exec"; 
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_-4OZLnymSGiWE26tfnFZznoAnpkltH-4f2aDR-kRu-LFjJqXvV_lYY-OQ5jZ6Cc2lw/exec"; 
 // Example: "https://script.google.com/macros/s/AKfycbx.../exec"
 
 // --- CONFIGURATION & MOCK DATA ---
@@ -38,13 +39,42 @@ export default function SVIMS() {
   const [currentRoute, setCurrentRoute] = useState('login');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
-  const [visitors, setVisitors] = useState([
-    { id: 1, name: 'Amit Singh', aadhaar: '9876', time: '09:15 AM', score: 85, status: 'Allowed', purpose: 'Meeting' },
-    { id: 2, name: 'Rahul Verma', aadhaar: '3456', time: '10:20 AM', score: 60, status: 'Staff Verify', purpose: 'Delivery' }
-  ]);
+  // Initialize with empty array or loading state
+  const [visitors, setVisitors] = useState([]);
+
+  // --- NEW: Fetch Data from Google Sheet ---
+  useEffect(() => {
+    const fetchSheetData = async () => {
+      try {
+        // Use the same URL you use for posting
+        const response = await fetch(GOOGLE_SCRIPT_URL);
+        const data = await response.json();
+        
+        // If data exists, reverse it so newest is on top
+        if (data && Array.isArray(data)) {
+            setVisitors(data.reverse()); 
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        // Fallback to mock data if fetch fails
+        setVisitors([
+            { id: 1, name: 'Amit Singh', aadhaar: '9876', time: '09:15 AM', score: 85, status: 'Allowed', purpose: 'Meeting' },
+        ]);
+      }
+    };
+
+    // Fetch immediately on load
+    fetchSheetData();
+    
+    // Optional: Refresh data every 30 seconds to keep dashboard live
+    const interval = setInterval(fetchSheetData, 30000);
+    return () => clearInterval(interval);
+
+  }, []); // Empty dependency array = runs once on mount
 
   const handleNewVisitor = (visitorData) => {
-    setVisitors([visitorData, ...visitors]);
+    // Optimistic Update: Show immediately before next fetch
+    setVisitors(prev => [visitorData, ...prev]);
   };
 
   return (
@@ -85,7 +115,6 @@ export default function SVIMS() {
     </div>
   );
 }
-
 // --- LOGIN PAGE ---
 function LoginPage({ onLogin, onVisitorEntry }) {
   const [username, setUsername] = useState('');
@@ -388,7 +417,7 @@ function VisitorForm({ onComplete, isKiosk }) {
 
     try {
       // Yahan apna NAYA Google Apps Script URL dalein
-      const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxeC_e7_fWtAok1SNAl1n7Pobd0idD3saeuklCTyPrD8XBYl3Hfui5o1VeKU-KOaMfl/exec"; 
+      const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_-4OZLnymSGiWE26tfnFZznoAnpkltH-4f2aDR-kRu-LFjJqXvV_lYY-OQ5jZ6Cc2lw/exec"; 
 
       await fetch(SCRIPT_URL, {
         method: 'POST',
