@@ -9,7 +9,7 @@ import {
   RefreshCw, CameraOff, FileText, Smartphone, ScanFace 
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-
+import QRCode from "react-qr-code";
 // --- ⚠️ IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT URL HERE ---
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_-4OZLnymSGiWE26tfnFZznoAnpkltH-4f2aDR-kRu-LFjJqXvV_lYY-OQ5jZ6Cc2lw/exec"; 
 // Example: "https://script.google.com/macros/s/AKfycbx.../exec"
@@ -135,12 +135,17 @@ function LoginPage({ onLogin, onVisitorEntry }) {
             <QrCode /> {showQR ? 'Hide QR Code' : 'Generate QR Code'}
           </button>
 
-          {showQR && (
-            <div className="bg-white p-4 rounded-xl w-fit animate-fade-in shadow-2xl">
-              <QrCode size={150} className="text-black" />
-              <p className="text-black text-xs text-center mt-2 font-mono">scan to open portal</p>
-            </div>
-          )}
+         {showQR && (
+  <div className="bg-white p-4 rounded-xl w-fit animate-fade-in shadow-2xl">
+    <QRCode
+      value="https://vmsaki.vercel.app/"
+      size={150}
+    />
+    <p className="text-black text-xs text-center mt-2 font-mono">
+      Scan to open Visitor Portal
+    </p>
+  </div>
+)}
         </div>
 
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl shadow-2xl">
