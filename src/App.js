@@ -266,8 +266,16 @@ function DashboardLayout({ onLogout, visitors, onAddVisitor }) {
                 <button onClick={() => setActiveTab('overview')} className="p-2 hover:bg-white/10 rounded-lg"><Home size={20} /></button>
                 <h1 className="text-3xl font-bold">Manual Entry</h1>
              </div>
-             <VisitorForm onComplete={(data) => { onAddVisitor(data); setActiveTab('overview'); alert(`Entry Processed: ${data.status}`); }} isKiosk={false} />
-          </div>
+          <VisitorForm
+  onComplete={(data) => {
+    onAddVisitor(data);
+    setActiveTab('overview');
+    alert(`Entry Processed: ${data.status}`);
+  }}
+  isKiosk={false}
+  visitors={visitors}
+/>
+              </div>
         )}
 
         {activeTab === 'analytics' && (
@@ -331,7 +339,7 @@ function DashboardLayout({ onLogout, visitors, onAddVisitor }) {
 }
 
 // --- REUSABLE VISITOR FORM (WITH GOOGLE SHEET LOGIC) ---
-function VisitorForm({ onComplete, isKiosk }) {
+function VisitorForm({ onComplete, isKiosk, visitors = [] }) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ 
@@ -380,7 +388,19 @@ function VisitorForm({ onComplete, isKiosk }) {
     const purposeScore = ['Meeting', 'Interview'].includes(formData.purpose) ? 25 : 15;
     const total = durationScore + normFaceScore + consistencyScore + purposeScore;
     
-    let status = 'Denied';
+   let status = 'Denied';
+
+const existingVisitor = visitors.find(
+  (v) => v.aadhaar === formData.aadhaar
+);
+
+if (
+  existingVisitor &&
+  existingVisitor.name.trim().toLowerCase() !==
+    formData.name.trim().toLowerCase()
+) {
+  status = "Unauthorized";
+}
     if (total > 80) status = 'Allowed';
     else if (total > 50) status = 'Staff Verify';
     
@@ -400,6 +420,28 @@ function VisitorForm({ onComplete, isKiosk }) {
     const today = new Date();
     const dateString = today.toLocaleDateString('en-GB'); // DD/MM/YYYY format
 
+    const existingVisitor = visitors.find(
+  (v) => v.aadhaar === formData.aadhaar
+);
+
+if (
+  existingVisitor &&
+  existingVisitor.name.trim().toLowerCase() !==
+    formData.name.trim().toLowerCase()
+) {
+  alert(
+    `🚨 UNAUTHORIZED USER ALERT
+
+Aadhaar Already Registered
+
+Original Name: ${existingVisitor.name}
+
+Entered Name: ${formData.name}`
+  );
+
+  return;
+}
+    
     const visitorData = {
       id: Date.now(),
       date: dateString, // <-- Humne readable date add kar di
@@ -454,8 +496,44 @@ function VisitorForm({ onComplete, isKiosk }) {
           <div className="space-y-4">
             <input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/30 border border-indigo-500/30 rounded-xl p-4 text-white" placeholder="Full Name" />
             <div className="grid grid-cols-2 gap-4">
-                <input value={formData.aadhaar} onChange={e => setFormData({...formData, aadhaar: e.target.value})} className="w-full bg-black/30 border border-indigo-500/30 rounded-xl p-4 text-white" placeholder="Aadhaar Number" />
-                <input value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} className="w-full bg-black/30 border border-indigo-500/30 rounded-xl p-4 text-white" placeholder="Mobile Number" />
+               <input
+  value={formData.aadhaar}
+  maxLength={12}
+  onChange={(e) => {
+    const value = e.target.value.replace(/[^0-9]/g, "");
+
+    if (value.length <= 12) {
+      setFormData({
+        ...formData,
+        aadhaar: value
+      });
+    }
+  }}
+  className="w-full bg-black/30 border border-indigo-500/30 rounded-xl p-4 text-white"
+  placeholder="Aadhaar Number"
+/>
+                <input
+  type="tel"
+  value={formData.mobile}
+  maxLength={10}
+  onChange={(e) => {
+    let value = e.target.value.replace(/\D/g, "");
+
+    // Sirf 6-9 se start hone do
+    if (value.length === 1 && !/[6-9]/.test(value)) {
+      return;
+    }
+
+    if (value.length <= 10) {
+      setFormData({
+        ...formData,
+        mobile: value
+      });
+    }
+  }}
+  className="w-full bg-black/30 border border-indigo-500/30 rounded-xl p-4 text-white"
+  placeholder="Mobile Number"
+/>
             </div>
             <input value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="w-full bg-black/30 border border-indigo-500/30 rounded-xl p-4 text-white" placeholder="Full Address" />
              <div className="grid grid-cols-2 gap-4">
