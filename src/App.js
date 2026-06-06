@@ -105,11 +105,15 @@ export default function SVIMS() {
         )}
         
         {currentRoute === 'user-kiosk' && (
-          <UserKioskPage 
-            onComplete={(data) => { handleNewVisitor(data); setCurrentRoute('login'); }}
-            onBack={() => setCurrentRoute('login')}
-            isKioskMode={true}
-          />
+<UserKioskPage
+  visitors={visitors}
+  onComplete={(data) => {
+    handleNewVisitor(data);
+    setCurrentRoute('login');
+  }}
+  onBack={() => setCurrentRoute('login')}
+  isKioskMode={true}
+/>
         )}
       </div>
     </div>
@@ -358,12 +362,23 @@ function VisitorForm({ onComplete, isKiosk, visitors = [] }) {
 
   const nextStep = () => setStep(p => p + 1);
 
-  const handleSendOTP = async () => {
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 800)); 
-    setLoading(false);
-    nextStep();
-  };
+const handleSendOTP = async () => {
+
+  if (!/^[0-9]{12}$/.test(formData.aadhaar)) {
+    alert("Aadhaar must be exactly 12 digits");
+    return;
+  }
+
+  if (!/^[6-9][0-9]{9}$/.test(formData.mobile)) {
+    alert("Mobile number must be 10 digits and start with 6,7,8 or 9");
+    return;
+  }
+
+  setLoading(true);
+  await new Promise(r => setTimeout(r, 800));
+  setLoading(false);
+  nextStep();
+};
 
   const handleVerifyOTP = async () => {
     setLoading(true);
@@ -395,9 +410,10 @@ function VisitorForm({ onComplete, isKiosk, visitors = [] }) {
     const total = durationScore + normFaceScore + consistencyScore + purposeScore;
     
    let status = 'Denied';
-
 const existingVisitor = visitors.find(
-  (v) => v.aadhaar === formData.aadhaar
+  (v) =>
+    String(v.aadhaar).trim() ===
+    String(formData.aadhaar).trim()
 );
 
 if (
@@ -405,11 +421,24 @@ if (
   existingVisitor.name.trim().toLowerCase() !==
     formData.name.trim().toLowerCase()
 ) {
-  status = "Unauthorized";
+
+  alert(
+`🚨 UNAUTHORIZED USER ALERT
+
+Aadhaar Already Registered
+
+Original Name: ${existingVisitor.name}
+
+Entered Name: ${formData.name}`
+  );
+
+  window.location.reload();
+
+  return;
 }
-    if (total > 80) status = 'Allowed';
-    else if (total > 50) status = 'Staff Verify';
-    
+
+if (total > 80) status = 'Allowed';
+else if (total > 50) status = 'Staff Verify';
     setAiAnalysis({ 
       breakdown: { duration: durationScore, face: normFaceScore, consistency: consistencyScore, purpose: purposeScore }, 
       total, status 
@@ -627,12 +656,21 @@ function ScoreItem({ label, score }) {
     )
 }
 
-function UserKioskPage({ onComplete, onBack, isKioskMode }) {
+function UserKioskPage({
+  onComplete,
+  onBack,
+  isKioskMode,
+  visitors
+}) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="relative w-full max-w-md">
         <button onClick={onBack} className="absolute -top-16 left-0 text-blue-200 hover:text-white flex items-center gap-2 transition bg-black/30 px-4 py-2 rounded-full backdrop-blur-md"><Home size={20} /> Back to Home</button>
-        <VisitorForm onComplete={onComplete} isKiosk={true} />
+        <VisitorForm
+  onComplete={onComplete}
+  isKiosk={true}
+  visitors={visitors}
+/>
       </div>
     </div>
   );
