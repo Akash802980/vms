@@ -137,9 +137,10 @@ function LoginPage({ onLogin, onVisitorEntry }) {
 
          {showQR && (
   <div className="bg-white p-4 rounded-xl w-fit animate-fade-in shadow-2xl">
-    <QRCode
-      value="https://vmsaki.vercel.app/"
-      size={150}
+    <img
+      src="https://raw.githubusercontent.com/Akash802980/vms/refs/heads/main/1b3dda5a-0b18-44d9-af30-3246c551bc24.jpg"
+      alt="Visitor Portal QR"
+      className="w-40 h-40 object-contain"
     />
     <p className="text-black text-xs text-center mt-2 font-mono">
       Scan to open Visitor Portal
