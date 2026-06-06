@@ -135,11 +135,11 @@ function LoginPage({ onLogin, onVisitorEntry }) {
             <QrCode /> {showQR ? 'Hide QR Code' : 'Generate QR Code'}
           </button>
 
-         {showQR && (
+        {showQR && (
   <div className="bg-white p-4 rounded-xl w-fit animate-fade-in shadow-2xl">
     <img
-      src="https://raw.githubusercontent.com/Akash802980/vms/refs/heads/main/Untitled%201.png"
-      alt="Visitor Portal QR"
+      src="/qr.jpg"
+      alt="QR Code"
       className="w-40 h-40 object-contain"
     />
     <p className="text-black text-xs text-center mt-2 font-mono">
