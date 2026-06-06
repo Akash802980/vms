@@ -9,7 +9,7 @@ import {
   RefreshCw, CameraOff, FileText, Smartphone, ScanFace 
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import QRCode from "react-qr-code";
+
 // --- ⚠️ IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT URL HERE ---
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_-4OZLnymSGiWE26tfnFZznoAnpkltH-4f2aDR-kRu-LFjJqXvV_lYY-OQ5jZ6Cc2lw/exec"; 
 // Example: "https://script.google.com/macros/s/AKfycbx.../exec"
@@ -138,7 +138,7 @@ function LoginPage({ onLogin, onVisitorEntry }) {
          {showQR && (
   <div className="bg-white p-4 rounded-xl w-fit animate-fade-in shadow-2xl">
     <img
-      src="https://raw.githubusercontent.com/Akash802980/vms/refs/heads/main/1b3dda5a-0b18-44d9-af30-3246c551bc24.jpg"
+      src="https://raw.githubusercontent.com/Akash802980/vms/refs/heads/main/Untitled%201.png"
       alt="Visitor Portal QR"
       className="w-40 h-40 object-contain"
     />
